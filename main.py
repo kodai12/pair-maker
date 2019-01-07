@@ -2,6 +2,9 @@ import requests
 import json
 import os
 
+import jpholiday
+import datetime
+
 
 class NotifyToSlack:
     def __init__(self):
@@ -11,9 +14,9 @@ class NotifyToSlack:
         requests.post(
             self.end_point,
             data=json.dumps({
-            'text': u'Test',
-            'username': u'me',
-            'icon_emoji': u':money_with_wings:',
+                'text': u'Test',
+                'username': u'me',
+                'icon_emoji': u':money_with_wings:',
                 'link_names': 1,
                 'attachments': [{
                     'fields': [
@@ -21,9 +24,17 @@ class NotifyToSlack:
                         {'title': 'pair2', 'value': 'sakochi3:sakochi4'}
                     ]
                 }]
-        }))
+            }))
 
+class NotifyDate:
+    def __init__(self):
+        self.today = datetime.date.today()
+
+    def is_holiday(self):
+        return jpholiday.is_holiday(self.today)
 
 if __name__ == '__main__':
-    notify_to_slack = NotifyToSlack()
-    notify_to_slack.run()
+    notify_date = NotifyDate()
+    if notify_date.is_holiday() is False:
+        notify_to_slack = NotifyToSlack()
+        notify_to_slack.run()
