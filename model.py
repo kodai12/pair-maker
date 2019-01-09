@@ -32,36 +32,44 @@ class TimesOfPair(Value):
 
 
 class Member(Entity):
-    def __init__(self,
-            pair_number: PairNumber,
-            times_of_pair: TimesOfPair) -> None:
+    def __init__(self, pair_number: PairNumber,
+                 times_of_pair: TimesOfPair) -> None:
         self.pair_number = pair_number
         self.times_of_pair = times_of_pair
 
-    def change_pair_order(self) -> 'Member':
-        if self.times_of_pair == 0:
-            return Member(
-                    pair_number=self.pair_number,
-                    times_of_pair=self.times_of_pair + 1
-                    )
+    def change_pair_order(self) -> dict:
+        if self.times_of_pair.value == 0:
+            return {
+                'pair_number': self.pair_number.value,
+                'times_of_pair': self.times_of_pair.value + 1
+            }
         else:
-            return Member(
-                    pair_number=self.pair_number - 1,
-                    times_of_pair=0
-                    )
+            return {
+                'pair_number': self.pair_number.value + 1,
+                'times_of_pair': 0
+            }
+
+    def is_belong_pair(self, member_list: list):
+        filtered = [
+            m for m in member_list
+            if m.pair_number.value == self.pair_number.value
+        ]
+        if len(filtered) == 1:
+            return False
+        else:
+            return True
 
     @staticmethod
     def from_dict(d: dict) -> 'Member':
         return Member(
-                pair_number=d['pair_number'],
-                times_of_pair=d['times_of_pair']
-                )
+            pair_number=PairNumber(d['pair_number']),
+            times_of_pair=TimesOfPair(d['times_of_pair']))
 
     def to_dict(self) -> dict:
         return {
-                'pair_number': self.pair_number.value,
-                'times_of_pair': self.times_of_pair.value
-                }
+            'pair_number': self.pair_number.value,
+            'times_of_pair': self.times_of_pair.value
+        }
 
 
 class MemberList(Value):
@@ -69,27 +77,16 @@ class MemberList(Value):
         self.values = values
 
     def change_pair(self) -> 'MemberList':
-        changed_member_list = []
+        changed_member_list: list = []
         for member in self.values:
-            if self.__is_belong_pair(member):
-                changed_member = member.change_pair_order()
+            if member.is_belong_pair(self.values):
+                changed_member: dict = member.change_pair_order()
             else:
-                changed_member = Member(
-                        pair_number=0,
-                        times_of_pair=0
-                        )
+                changed_member: dict = {'pair_number': 0, 'times_of_pair': 0}
             changed_member_list.append(changed_member)
 
-        return changed_member_list
-
-    def __is_belong_pair(self, m: Member):
-        filterd = [v for v in self.values if v.pair_number == m.pair_number]
-        if len(filterd) == 1:
-            return False
-        else:
-            return True
+        return create_member_list(changed_member_list)
 
 
 def create_member_list(member_list: list):
-    return [Member.from_dict(m) for m in member_list]
-
+    return MemberList([Member.from_dict(m) for m in member_list])
