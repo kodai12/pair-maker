@@ -1,6 +1,8 @@
+import pprint
+
 from model import MemberList
 from model import create_member_list
-import pprint
+from datasource import SlackDatasource
 
 
 class NotifyToSlack:
@@ -11,22 +13,27 @@ class NotifyToSlack:
         # dynamoからメンバーのデータを取得しモデルに変換
         member_list: list = [
             {
+                "name": "test1",
                 "pair_number": 0,
                 "times_of_pair": 1
             },
             {
+                "name": "test2",
                 "pair_number": 0,
                 "times_of_pair": 0
             },
             {
+                "name": "test3",
                 "pair_number": 1,
                 "times_of_pair": 1
             },
             {
+                "name": "test4",
                 "pair_number": 1,
                 "times_of_pair": 0
             },
             {
+                "name": "test5",
                 "pair_number": 2,
                 "times_of_pair": 0
             },
@@ -42,6 +49,8 @@ class NotifyToSlack:
             pprint.pprint(m.to_dict())
         # 新しいペアをdynamoに保存
         # slackに通知
+        slack_datasource = SlackDatasource()
+        slack_datasource.post(member_list=changed_member_list)
 
 
 if __name__ == '__main__':
