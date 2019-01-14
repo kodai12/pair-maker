@@ -31,20 +31,21 @@ class Single(Combination):
 def create_combination(combination: List[int]) -> Combination:
     if len(combination) == 1:
         return Single(member=Member(
-                id=combination[0],
-                index=combination[0] # TODO: indexどうやって取得しようか
+                id=combination[0]['id'],
+                index=combination[0]['index']
             ))
     elif len(combination) == 2:
         return Pair(members=[Member(
-            id=c,
-            index=c) # TODO: ここもindexどうやって取得しようか
-            for index, c in enumerate(combination)])
+            id=c['id'],
+            index=c['index'])
+            for c in combination])
     else:
         raise Exception('combination length must be 1 or 2')
 
 
 def create_combinations(combination_index_list: List[int]) -> List[Combination]:
-    chunked_list: List[list] = list(chunked(combination_index_list, 2))
+    d = [{'id': id, 'index': index} for index, id in enumerate(combination_index_list)]
+    chunked_list: List[list] = list(chunked(d, 2))
     return [create_combination(combination)
             for combination in chunked_list]
 
