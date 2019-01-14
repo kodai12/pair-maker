@@ -1,7 +1,11 @@
+from datetime import datetime
+from typing import List
 import pprint
 
-from model import MemberList
-from model import create_member_list
+from model import NotifyDate
+from model import Combination
+from model import create_pairs
+from model import update_pairs
 from datasource import SlackDatasource
 
 
@@ -10,47 +14,17 @@ class NotifyToSlack:
         pass
 
     def run(self):
-        # dynamoからメンバーのデータを取得しモデルに変換
-        member_list: list = [
-            {
-                "name": "test1",
-                "pair_number": 0,
-                "times_of_pair": 1
-            },
-            {
-                "name": "test2",
-                "pair_number": 0,
-                "times_of_pair": 0
-            },
-            {
-                "name": "test3",
-                "pair_number": 1,
-                "times_of_pair": 1
-            },
-            {
-                "name": "test4",
-                "pair_number": 1,
-                "times_of_pair": 0
-            },
-            {
-                "name": "test5",
-                "pair_number": 2,
-                "times_of_pair": 0
-            },
-        ]
-        member_list: MemberList = create_member_list(member_list)
-        print('-------original-------')
-        for m in member_list.values:
-            pprint.pprint(m.to_dict())
-        # ペアを回して新しいペアの組み合わせを取得
-        changed_member_list: MemberList = member_list.change_pair()
-        print('-------changed-------')
-        for m in changed_member_list.values:
-            pprint.pprint(m.to_dict())
-        # 新しいペアをdynamoに保存
+        # 組み合わせを取得
+        pair_index_list = [1, 2, 3, 4, 5]
+        pairs: List[Combination] = create_pairs(pair_index_list)
+        # 日付を取得
+        today = datetime.today()
+        # 日付が更新可能な日付であれば前回の組み合わせから新しい組み合わせを作成
+        NotifyDate.isUpdatable(today)
+        new_pairs: List[Combination] = update_pairs(pairs)
         # slackに通知
         slack_datasource = SlackDatasource()
-        slack_datasource.post(member_list=changed_member_list)
+        slack_datasource.post(member_list=new_pairs)
 
 
 if __name__ == '__main__':
