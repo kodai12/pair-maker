@@ -22,10 +22,24 @@ class Pair(Combination):
     def divide_member(self):
         return (self.members[0], self.members[1])
 
+    def to_dict(self):
+        return {
+                'member': [{
+                    'id': member.id
+                    } for member in self.members]
+                }
+
 
 class Single(Combination):
     def __init__(self, member: Member):
         self.member = member
+
+    def to_dict(self):
+        return {
+                'member': {
+                    'id': self.member.id
+                    }
+                }
 
 
 def create_combination(combination: List[int]) -> Combination:
@@ -69,9 +83,15 @@ def update_combinations(combinations: List[Combination]) -> List[Combination]:
     # remainingに残ったメンバーをいずれかのペアにinsertする
     for member in remaining:
         if member.index == random_index:
-            new_combinations_index_list.insert(len(combinations), member.id)
-        else:
             new_combinations_index_list.insert(remain_index, member.id)
+        else:
+            new_combinations_index_list.insert(len(combinations), member.id)
+
+    # 0を詰める
+    new_combinations_index_list = list(
+            filter(
+                lambda x: x != 0, new_combinations_index_list
+                ))
 
     return create_combinations(new_combinations_index_list)
 
