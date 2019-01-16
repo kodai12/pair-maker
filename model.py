@@ -26,12 +26,11 @@ class Member:
         self.name = name
 
     @staticmethod
-    def from_dict(member_dict: dict) -> Member:
+    def from_dict(member_dict: dict) -> 'Member':
         return Member(
                 id=MemberId(member_dict['id']),
                 index=MemberIndex(member_dict['index']),
-                name=MemberName(member_dict['name'])
-                )
+            name=MemberName(member_dict['name']))
 
     def to_dict(self) -> dict:
         return {
@@ -43,33 +42,30 @@ class Member:
 
 class Combination(metaclass=ABCMeta):
     @abstractmethod
-    @staticmethod
-    def from_dict(dict: dict) -> 'Combination':
+    def __init__(self, index):
         pass
 
+    @abstractmethod
     def to_dict() -> dict:
         pass
 
 
+class CombinationIndex:
+    def __init__(self, value: int):
+        self.value = value
+
+
 class Pair(Combination):
-    def __init__(self, memberList: List[Member]):
+    def __init__(self, index: CombinationIndex, memberList: List[Member]):
+        self.index = index
         self.memberList = memberList
 
     def divide_member(self):
         return (self.memberList[0], self.memberList[1])
 
-    @staticmethod
-    def from_dict(pair_dict: dict) -> 'Pair':
-        return Pair(
-                memberIdList=List[Member.from_dict(
-                        id=MemberId(pair_dict['id']),
-                        index=MemberIndex(pair_dict['index']),
-                        name=MemberName(pair_dict['name'])
-                    )],
-                )
-
     def to_dict(self):
         return {
+            'index': self.index.value,
                 'member': [{
                     'id': member.id.value,
                     'index': member.index.value,
@@ -78,22 +74,23 @@ class Pair(Combination):
                 }
 
 
-class Single(Combination):
-    def __init__(self, member: Member):
-        self.member = member
+def create_pair(index: CombinationIndex, member_dict_list: List[dict]) -> Pair:
+    return Pair(
+        index=index,
+        memberList=[
+            Member.from_dict(member_dict=member_dict)
+            for member_dict in member_dict_list
+        ])
 
-    @staticmethod
-    def from_dict(single_dict: dict) -> 'Single':
-        return Single(
-                member=Member.from_dict(
-                    id=MemberId(single_dict['id']),
-                    index=MemberIndex(single_dict['index']),
-                    name=MemberName(single_dict['name'])
-                    ),
-                )
+
+class Single(Combination):
+    def __init__(self, index: CombinationIndex, member: Member):
+        self.index = index
+        self.member = member
 
     def to_dict(self):
         return {
+            'index': self.index.value,
                 'member': {
                     'id': self.member.id.value,
                     'index': self.member.index.value,
@@ -102,26 +99,28 @@ class Single(Combination):
                 }
 
 
-def create_combination(combination: List[int]) -> Combination:
-    if len(combination) == 1:
-        return Single(member=Member(
-                id=combination[0]['id'],
-                index=combination[0]['index']
-            ))
-    elif len(combination) == 2:
-        return Pair(members=[Member(
-            id=c['id'],
-            index=c['index'])
-            for c in combination])
+def create_single(index: CombinationIndex, member_dict: dict) -> Single:
+    return Single(
+        index=index, member=Member.from_dict(member_dict=member_dict))
+
+
+def create_combination(index: CombinationIndex,
+                       member_dict_list: List[dict]) -> Combination:
+    if len(member_dict_list) == 1:
+        return create_single(index, member_dict_list[0])
+    elif len(member_dict_list) == 2:
+        return create_pair(index, member_dict_list)
     else:
         raise Exception('combination length must be 1 or 2')
 
 
-def create_combinations(combination_index_list: List[int]) -> List[Combination]:
-    d = [{'id': id, 'index': index} for index, id in enumerate(combination_index_list)]
-    chunked_list: List[list] = list(chunked(d, 2))
-    return [create_combination(combination)
-            for combination in chunked_list]
+def create_combinations(
+        combination_index_list: List[dict]) -> List[Combination]:
+    chunked_list: List[list] = list(chunked(combination_index_list, 2))
+    return [
+        create_combination(CombinationIndex(index), member_dict_list)
+        for index, member_dict_list in enumerate(chunked_list)
+    ]
 
 
 def update_combinations(combinations: List[Combination]) -> List[Combination]:
