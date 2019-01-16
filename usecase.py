@@ -15,7 +15,33 @@ class NotifyToSlack:
 
     def run(self):
         # 組み合わせを取得
-        pair_index_list = [1, 2, 3, 4, 5]
+        pair_index_list = [
+            {
+                'id': 1,
+                'index': 1,
+                'name': 'test1'
+            },
+            {
+                'id': 2,
+                'index': 2,
+                'name': 'test2'
+            },
+            {
+                'id': 3,
+                'index': 3,
+                'name': 'test3'
+            },
+            {
+                'id': 4,
+                'index': 4,
+                'name': 'test4'
+            },
+            {
+                'id': 5,
+                'index': 5,
+                'name': 'test5'
+            },
+        ]
         pairs: List[Combination] = create_combinations(pair_index_list)
         # 日付を取得
         today = datetime.today()

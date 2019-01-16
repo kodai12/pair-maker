@@ -12,9 +12,9 @@ class SlackDatasource:
 
     def post(self, pair_list: List[Combination]):
         fields = [{
-            'title': 'pair{}'.format(index),
+            'title': 'pair{}'.format(pair.to_dict()['index']),
             'value': '{}'.format(pair.to_dict()['member'])
-        } for index, pair in enumerate(pair_list)]
+        } for pair in pair_list]
         requests.post(
             self.end_point,
             data=json.dumps({
