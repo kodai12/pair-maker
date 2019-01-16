@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from typing import List
 from more_itertools import chunked
+from itertools import chain
 import random
 
 
@@ -28,16 +29,16 @@ class Member:
     @staticmethod
     def from_dict(member_dict: dict) -> 'Member':
         return Member(
-                id=MemberId(member_dict['id']),
-                index=MemberIndex(member_dict['index']),
+            id=MemberId(member_dict['id']),
+            index=MemberIndex(member_dict['index']),
             name=MemberName(member_dict['name']))
 
     def to_dict(self) -> dict:
         return {
-                'id': self.id.value,
-                'index': self.index.value,
-                'name': self.name.value
-                }
+            'id': self.id.value,
+            'index': self.index.value,
+            'name': self.name.value
+        }
 
 
 class Combination(metaclass=ABCMeta):
@@ -66,12 +67,12 @@ class Pair(Combination):
     def to_dict(self):
         return {
             'index': self.index.value,
-                'member': [{
-                    'id': member.id.value,
-                    'index': member.index.value,
-                    'name': member.name.value
-                    } for member in self.memberList]
-                }
+            'member': [{
+                'id': member.id.value,
+                'index': member.index.value,
+                'name': member.name.value
+            } for member in self.memberList]
+        }
 
 
 def create_pair(index: CombinationIndex, member_dict_list: List[dict]) -> Pair:
@@ -91,12 +92,12 @@ class Single(Combination):
     def to_dict(self):
         return {
             'index': self.index.value,
-                'member': {
-                    'id': self.member.id.value,
-                    'index': self.member.index.value,
-                    'name': self.member.name.value
-                    }
-                }
+            'member': {
+                'id': self.member.id.value,
+                'index': self.member.index.value,
+                'name': self.member.name.value
+            }
+        }
 
 
 def create_single(index: CombinationIndex, member_dict: dict) -> Single:
@@ -124,41 +125,36 @@ def create_combinations(
 
 
 def update_combinations(combinations: List[Combination]) -> List[Combination]:
-    new_combinations_index_list = [0] * len(combinations)
-    remaining = []
-    (random_index, remain_index) = _create_random_index(combinations)
+    index_list_1 = []
+    remaining_list = []
+    (random_index, remain_index) = _get_random_index()
     for combination in combinations:
         # ペアの片方は元のペアに残したままでもう片方はremainingにappendしておく
         if isinstance(combination, Pair):
             (move_member, stay_member) = combination.divide_member()
-            new_combinations_index_list.insert(
-                    move_member.index, stay_member.id)
-            remaining.append(move_member)
-        # singleの場合はrandom(2番目か4番目)にリストにinsertしておく
+            index_list_1.append([stay_member])
+            remaining_list.append({
+                'pair_index': combination.index.value,
+                'member': move_member
+                })
+        # singleの場合はrandom(1番目か2番目)にリストにinsertしておく
         if isinstance(combination, Single):
-            new_combinations_index_list.insert(
-                    random_index, combination.member.id)
+            index_list_1[random_index].append(combination.member)
 
     # remainingに残ったメンバーをいずれかのペアにinsertする
-    for member in remaining:
-        if member.index == random_index:
-            new_combinations_index_list.insert(remain_index, member.id)
+    for remaining in remaining_list:
+        if remaining['pair_index'] == random_index:
+            index_list_1[remain_index].append(remaining['member'])
         else:
-            new_combinations_index_list.insert(len(combinations), member.id)
+            index_list_1.append([remaining['member']])
 
-    # 0を詰める
-    new_combinations_index_list = list(
-            filter(
-                lambda x: x != 0, new_combinations_index_list
-                ))
-
-    return create_combinations(new_combinations_index_list)
+    index_list_dict = [i.to_dict() for i in chain.from_iterable(index_list_1)]
+    return create_combinations(index_list_dict)
 
 
-def _create_random_index(combinations: list) -> tuple:
-    random_set_position = random.randrange(2, len(combinations), 2)
-    if random_set_position == 2:
-        return (2, 4)
-    if random_set_position == 4:
-        return (4, 2)
+def _get_random_index() -> tuple:
+    if random.choice(['True', 'False']):
+        return (0, 1)
+    else:
+        return (1, 0)
 
