@@ -3,6 +3,16 @@ from typing import List
 from more_itertools import chunked
 from itertools import chain
 import random
+import jpholiday
+import datetime
+
+
+class NotifyDate:
+    def __init__(self):
+        self.today = datetime.date.today()
+
+    def is_holiday(self):
+        return jpholiday.is_holiday(self.today)
 
 
 class MemberId:
