@@ -42,22 +42,39 @@ class Member:
 
 
 class Combination(metaclass=ABCMeta):
-    def __init__(self, combination: list):
-        self.combination = combination
+    @abstractmethod
+    @staticmethod
+    def from_dict(dict: dict) -> 'Combination':
+        pass
+
+    def to_dict() -> dict:
+        pass
 
 
 class Pair(Combination):
-    def __init__(self, members: List[Member]):
-        self.members = members
+    def __init__(self, memberList: List[Member]):
+        self.memberList = memberList
 
     def divide_member(self):
-        return (self.members[0], self.members[1])
+        return (self.memberList[0], self.memberList[1])
+
+    @staticmethod
+    def from_dict(pair_dict: dict) -> 'Pair':
+        return Pair(
+                memberIdList=List[Member.from_dict(
+                        id=MemberId(pair_dict['id']),
+                        index=MemberIndex(pair_dict['index']),
+                        name=MemberName(pair_dict['name'])
+                    )],
+                )
 
     def to_dict(self):
         return {
                 'member': [{
-                    'id': member.id
-                    } for member in self.members]
+                    'id': member.id.value,
+                    'index': member.index.value,
+                    'name': member.name.value
+                    } for member in self.memberList]
                 }
 
 
@@ -65,10 +82,22 @@ class Single(Combination):
     def __init__(self, member: Member):
         self.member = member
 
+    @staticmethod
+    def from_dict(single_dict: dict) -> 'Single':
+        return Single(
+                member=Member.from_dict(
+                    id=MemberId(single_dict['id']),
+                    index=MemberIndex(single_dict['index']),
+                    name=MemberName(single_dict['name'])
+                    ),
+                )
+
     def to_dict(self):
         return {
                 'member': {
-                    'id': self.member.id
+                    'id': self.member.id.value,
+                    'index': self.member.index.value,
+                    'name': self.member.name.value
                     }
                 }
 
