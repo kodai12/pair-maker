@@ -22,9 +22,9 @@ class SlackDatasource:
         requests.post(
             self.end_point,
             data=json.dumps({
-                'text': u'今日のペアプロの相手は...?',
-                'username': u'ペア通知bot',
-                'icon_emoji': u':barusu:',
+                'text': '今日のペアプロの相手は...?',
+                'username': 'ペア通知bot',
+                'icon_emoji': ':barusu:',
                 'link_names': 1,
                 'attachments': [{
                     'fields': fields
