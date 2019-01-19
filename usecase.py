@@ -11,9 +11,8 @@ from datasource import SlackDatasource
 
 class NotifyToSlack:
     def __init__(self, csv_datasource: CsvDatasource,
-            slack_datasource: SlackDatasource,
-            read_csv_file: str,
-            write_csv_file: str):
+                 slack_datasource: SlackDatasource, read_csv_file: str,
+                 write_csv_file: str):
         self.csv_datasource = csv_datasource
         self.slack_datasource = slack_datasource
         self.read_csv_file = read_csv_file

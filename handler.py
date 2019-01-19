@@ -17,11 +17,10 @@ def hello(event, context):
 
         # create usecase
         notify_to_slack = NotifyToSlack(
-                csv_datasource=csv_datasource,
-                slack_datasource=slack_datasource,
-                read_csv_file=read_csv_file,
-                write_csv_file=write_csv_file
-                )
+            csv_datasource=csv_datasource,
+            slack_datasource=slack_datasource,
+            read_csv_file=read_csv_file,
+            write_csv_file=write_csv_file)
 
         # run usecase
         notify_to_slack.run()

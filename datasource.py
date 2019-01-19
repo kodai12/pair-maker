@@ -12,10 +12,13 @@ class SlackDatasource:
         self.end_point = os.environ['SLACK_WEBHOOK_URL']
 
     def post(self, pair_list: List[Combination]) -> None:
-        fields = [{
-            'title': 'pair{}'.format(pair.to_dict()['index'] + 1),  # pair番号は1から始めるのでインクリメント
-            'value': '{}'.format(self.__format_pair(pair))
-        } for pair in pair_list]
+        fields = [
+            {
+                'title': 'pair{}'.format(pair.to_dict()['index'] +
+                                         1),  # pair番号は1から始めるのでインクリメント
+                'value': '{}'.format(self.__format_pair(pair))
+            } for pair in pair_list
+        ]
         requests.post(
             self.end_point,
             data=json.dumps({
@@ -49,7 +52,7 @@ class CsvDatasource:
                 'id': row[0],
                 'index': row[1],
                 'name': row[2]
-                } for row in reader]
+            } for row in reader]
 
     def write(self, file_name: str, pair_list: List[Combination]) -> None:
         with open(file_name, 'w') as f:
