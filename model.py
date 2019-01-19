@@ -50,6 +50,9 @@ class Member:
             'name': self.name.value
         }
 
+    def to_flat_list(self) -> List[str]:
+        return [self.id.value, self.index.value, self.name.value]
+
 
 class Combination(metaclass=ABCMeta):
     @abstractmethod
@@ -77,12 +80,11 @@ class Pair(Combination):
     def to_dict(self):
         return {
             'index': self.index.value,
-            'member': [{
-                'id': member.id.value,
-                'index': member.index.value,
-                'name': member.name.value
-            } for member in self.memberList]
+            'member': [member.to_dict() for member in self.memberList]
         }
+
+    def to_flat_list(self):
+        return [member.to_flat_list() for member in self.memberList]
 
 
 def create_pair(index: CombinationIndex, member_dict_list: List[dict]) -> Pair:
@@ -102,12 +104,11 @@ class Single(Combination):
     def to_dict(self):
         return {
             'index': self.index.value,
-            'member': {
-                'id': self.member.id.value,
-                'index': self.member.index.value,
-                'name': self.member.name.value
-            }
+            'member': self.member.to_dict()
         }
+
+    def to_flat_list(self):
+        return [self.member.to_flat_list()]
 
 
 def create_single(index: CombinationIndex, member_dict: dict) -> Single:
@@ -137,7 +138,7 @@ def create_combinations(
 def update_combinations(combinations: List[Combination]) -> List[Combination]:
     index_list_1 = []
     remaining_list = []
-    (random_index, remain_index) = _get_random_index()
+    (random_index, remain_index) = get_random_index()
     for combination in combinations:
         # ペアの片方は元のペアに残したままでもう片方はremainingにappendしておく
         if isinstance(combination, Pair):
@@ -162,8 +163,8 @@ def update_combinations(combinations: List[Combination]) -> List[Combination]:
     return create_combinations(index_list_dict)
 
 
-def _get_random_index() -> tuple:
-    if random.choice(['True', 'False']):
+def get_random_index() -> tuple:
+    if random.choice([True, False]):
         return (0, 1)
     else:
         return (1, 0)
