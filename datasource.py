@@ -4,33 +4,40 @@ import os
 from typing import List
 import csv
 
-from model import Combination
+from model.combination import Combination
 
 
 class SlackDatasource:
-    def __init__(self):
+    def __init__(self) -> None:
         self.end_point = os.environ['SLACK_WEBHOOK_URL']
 
-    def post(self, pair_list: List[Combination]):
+    def post(self, pair_list: List[Combination]) -> None:
         fields = [{
-            'title': 'pair{}'.format(pair.to_dict()['index']),
-            'value': '{}'.format(pair.to_dict()['member'])
+            'title': 'pair{}'.format(pair.to_dict()['index'] + 1),  # pair番号は1から始めるのでインクリメント
+            'value': '{}'.format(self.__format_pair(pair))
         } for pair in pair_list]
         requests.post(
             self.end_point,
             data=json.dumps({
-                'text': u'Test',
-                'username': u'me',
-                'icon_emoji': u':money_with_wings:',
+                'text': u'今日のペアプロの相手は...?',
+                'username': u'ペア通知bot',
+                'icon_emoji': u':barusu:',
                 'link_names': 1,
                 'attachments': [{
                     'fields': fields
                 }]
             }))
 
+    def __format_pair(self, pair: Combination) -> str:
+        members = pair.to_dict()['member']
+        if isinstance(members, list):
+            name_list = [member['name'] for member in members]
+            return ' : '.join(name_list)
+        return members['name']
+
 
 class CsvDatasource:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     def read(self, file_name: str) -> List[dict]:
