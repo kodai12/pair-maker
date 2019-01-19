@@ -1,10 +1,10 @@
 from datetime import datetime
 from typing import List
 
-from model import NotifyDate
-from model import Combination
-from model import create_combinations
-from model import update_combinations
+from model.date import NotifyDate
+from model.combination import Combination
+from model.combination import create_combinations
+from model.combination import update_combinations
 from datasource import CsvDatasource
 from datasource import SlackDatasource
 
@@ -23,6 +23,7 @@ class NotifyToSlack:
         # 組み合わせを取得
         pair_index_list = self.csv_datasource.read(self.read_csv_file)
         pairs: List[Combination] = create_combinations(pair_index_list)
+
         # 日付を取得
         today = datetime.today().date()
 
@@ -38,8 +39,3 @@ class NotifyToSlack:
 
         # slackに通知
         self.slack_datasource.post(pair_list=new_pairs)
-
-
-if __name__ == '__main__':
-    n = NotifyToSlack()
-    n.run()
