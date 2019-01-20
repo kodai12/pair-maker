@@ -4,3 +4,4 @@ node_modules/
 .serverless/
 package-lock.json
 pairs.csv
+inspect
