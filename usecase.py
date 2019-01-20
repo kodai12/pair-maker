@@ -37,5 +37,5 @@ class NotifyToSlack:
         self.csv_datasource.write(member_id_list)
 
         # slackに通知
-        #  self.slack_datasource.post(pair_list=new_pairs)
-        self.slack_datasource.measure_pair_variation(pair_list=new_pairs)
+        self.slack_datasource.post(pair_list=new_pairs)
+        #  self.slack_datasource.measure_pair_variation(pair_list=new_pairs)

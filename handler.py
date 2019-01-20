@@ -28,5 +28,6 @@ def hello(event, context):
 
 
 if __name__ == '__main__':
-    for i in range(10):
-        hello('', '')
+    #  for i in range(10):
+    #      hello('', '')
+    hello('', '')
