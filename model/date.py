@@ -15,4 +15,6 @@ class NotifyDate(Value):
             return True
         return False
 
+    def get_weekday(self) -> int:
+        return self.datetime.weekday()
 

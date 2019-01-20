@@ -5,6 +5,7 @@ from itertools import chain
 import random
 
 from model.member import Member
+from model.member import MemberId
 from model.value import Value
 
 
@@ -22,38 +23,52 @@ class Combination(metaclass=ABCMeta):
     def to_dict() -> dict:
         pass
 
+    @abstractmethod
+    def skip_member_list() -> List[Member]:
+        pass
+
 
 class Pair(Combination):
-    def __init__(self, index: CombinationIndex, memberList: List[Member]):
+    def __init__(self, index: CombinationIndex, memberList: List[Member]) -> None:
         self.index = index
         self.memberList = memberList
 
-    def divide_member(self):
+    def divide_member(self) -> tuple:
         return (self.memberList[0], self.memberList[1])
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         return {
             'index': self.index.value,
             'member': [member.to_dict() for member in self.memberList]
         }
 
-    def to_flat_list(self):
-        return [member.to_flat_list() for member in self.memberList]
+    def get_member_id_list(self) -> List[MemberId]:
+        return [member.id for member in self.memberList]
+
+    def skip_member_list(self, weekday: int) -> List[Member]:
+        new_index_list = []
+        for member in self.memberList:
+            if weekday not in member.skip_days.values:
+                new_index_list.append(member.to_dict())
+        return new_index_list
 
 
 class Single(Combination):
-    def __init__(self, index: CombinationIndex, member: Member):
+    def __init__(self, index: CombinationIndex, member: Member) -> None:
         self.index = index
         self.member = member
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         return {
             'index': self.index.value,
             'member': self.member.to_dict()
         }
 
-    def to_flat_list(self):
-        return [self.member.to_flat_list()]
+    def get_member_id(self) -> MemberId:
+        return self.member.id
+
+    def skip_member_list(self, weekday: int) -> List[Member]:
+        return [self.member.to_dict()] if weekday not in self.member.skip_days.values else []
 
 
 # factory
@@ -82,8 +97,13 @@ def create_combination(index: CombinationIndex,
 
 
 def create_combinations(
-        combination_index_list: List[dict]) -> 'CombinationList':
-    chunked_list: List[list] = list(chunked(combination_index_list, 2))
+        all_member_list: List[dict]) -> 'CombinationList':
+    # 各メンバーのindexをリストの順番通りに更新
+    for index, _ in enumerate(all_member_list):
+        all_member_list[index]['index'] = index
+    # 2組づつのペアに分割
+    chunked_list: List[list] = list(chunked(all_member_list, 2))
+    # CombinationListの生成
     return CombinationList([
         create_combination(CombinationIndex(index), member_dict_list)
         for index, member_dict_list in enumerate(chunked_list)
@@ -121,9 +141,29 @@ class CombinationList:
         index_list_dict = [i.to_dict() for i in chain.from_iterable(index_stack)]
         return create_combinations(index_list_dict)
 
+    def update_skip_list_member(self, weekday: int) -> 'CombinationList':
+        index_stack = []
+        for combination in self.values:
+            index_stack.append(combination.skip_member_list(weekday))
+        index_list_dict = [i for i in chain.from_iterable(index_stack)]
+        return create_combinations(index_list_dict)
+
     def __get_random_index(self) -> tuple:
         if random.choice([True, False]):
             return (0, 1)
         else:
             return (1, 0)
 
+    def get_member_id_list(self) -> List[MemberId]:
+        member_id_stack = []
+        for combination in self.values:
+            if isinstance(combination, Pair):
+                member_id_stack.append(combination.get_member_id_list())
+            if isinstance(combination, Single):
+                member_id_stack.append([combination.get_member_id()])
+        return [id for id in chain.from_iterable(member_id_stack)]
+
+    def to_dict(self) -> dict:
+        return {
+            'pairs': [pair.to_dict() for pair in self.values]
+        }
