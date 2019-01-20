@@ -11,7 +11,7 @@
 #
 # Happy Coding!
 
-service: pair_maker
+service: pair-maker
 
 provider:
   name: aws
@@ -45,14 +45,25 @@ package:
    - __pycache__/**
    - .vscode/**
    - tags
+   - package.*json
+   - node_modules/**
+
+layers:
+  mylayer:
+    path: lambdalayer
+    name: ${self:service}-mylayer
+    compatibleRuntimes:
+      - python3.6
 
 functions:
   hello:
     handler: handler.hello
     events:
-      - schedule: cron(*/5 * * * * 1-5)
+      - schedule: cron(0/5 * ? * * *)
     environment:
+      PYTHONPATH: "/opt/lambdalayer"
       SLACK_WEBHOOK_URL: ${env:SLACK_WEBHOOK_URL}
       READ_CSV_FILE: ${env:READ_CSV_FILE}
       WRITE_CSV_FILE: ${env:WRITE_CSV_FILE}
-
+    layers:
+      - {Ref: MylayerLambdaLayer}

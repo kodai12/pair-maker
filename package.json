@@ -1,0 +1,22 @@
+{
+  "name": "pair-maker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kodai12/pair-maker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kodai12/pair-maker/issues"
+  },
+  "homepage": "https://github.com/kodai12/pair-maker#readme",
+  "dependencies": {
+    "serverless": "^1.36.1"
+  }
+}
