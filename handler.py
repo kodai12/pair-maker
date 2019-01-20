@@ -9,12 +9,15 @@ def hello(event, context):
         # get outside data
         index_history_csv_file = os.environ['INDEX_HISTORY_CSV_FILE']
         settings_csv_file = os.environ['SETTINGS_CSV_FILE']
+        slack_end_point = os.environ['SLACK_WEBHOOK_URL']
 
         # create datasource
         csv_datasource = CsvDatasource(
             settings_file=settings_csv_file,
             index_history_file=index_history_csv_file)
-        slack_datasource = SlackDatasource()
+        slack_datasource = SlackDatasource(
+                end_point=slack_end_point
+                )
 
         # create usecase
         notify_to_slack = NotifyToSlack(

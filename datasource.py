@@ -10,8 +10,8 @@ from model.member import MemberId
 
 
 class SlackDatasource:
-    def __init__(self) -> None:
-        self.end_point = os.environ['SLACK_WEBHOOK_URL']
+    def __init__(self, end_point: str) -> None:
+        self.end_point = end_point
 
     def post(self, pair_list: CombinationList) -> None:
         fields = [
@@ -66,7 +66,6 @@ class SlackDatasource:
                 CsvDatasource.write_for_metrics(8)
             elif print_name == '' or print_name == '':
                 CsvDatasource.write_for_metrics(9)
-
 
 
 class CsvDatasource:
