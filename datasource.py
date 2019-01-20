@@ -1,23 +1,23 @@
-from lambdalayer import requests
+import csv
 import json
 import os
 from typing import List
-import csv
 
-from model.combination import Combination
+from lambdalayer import requests
+from model.combination import Combination, CombinationList
 
 
 class SlackDatasource:
     def __init__(self) -> None:
         self.end_point = os.environ['SLACK_WEBHOOK_URL']
 
-    def post(self, pair_list: List[Combination]) -> None:
+    def post(self, pair_list: CombinationList) -> None:
         fields = [
             {
                 'title': 'pair{}'.format(pair.to_dict()['index'] +
                                          1),  # pair番号は1から始めるのでインクリメント
                 'value': '{}'.format(self.__format_pair(pair))
-            } for pair in pair_list
+            } for pair in pair_list.values
         ]
         requests.post(
             self.end_point,
@@ -57,8 +57,8 @@ class CsvDatasource:
     def write(self, file_name: str, pair_list: List[Combination]) -> None:
         with open(file_name, 'w') as f:
             w = csv.writer(f, lineterminator='\n')
-            w.writerow(pair_list[0].to_dict()['member'][0].keys())
-            for pair in pair_list:
+            w.writerow(pair_list.values[0].to_dict()['member'][0].keys())
+            for pair in pair_list.values:
                 lists = pair.to_flat_list()
                 for l in lists:
                     w.writerow(l)
