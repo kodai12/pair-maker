@@ -16,7 +16,7 @@ class SlackDatasource:
     def post(self, pair_list: CombinationList) -> None:
         fields = [
             {
-                'title': 'pair{}'.format(pair.to_dict()['index'] +
+                'title': 'PAIR{}'.format(pair.to_dict()['index'] +
                                          1),  # pair番号は1から始めるのでインクリメント
                 'value': '{}'.format(self.__format_pair(pair))
             } for pair in pair_list.values
@@ -24,9 +24,9 @@ class SlackDatasource:
         requests.post(
             self.end_point,
             data=json.dumps({
-                'text': '今日のペアプロの相手は...?',
-                'username': 'ペア通知bot',
-                'icon_emoji': ':barusu:',
+                'text': os.environ.get('SLACK_NOTIFY_TITLE', '今日のペアプロの相手は...?'),
+                'username': os.environ.get('SLACK_NOTIFY_USERNAME', 'ペア通知bot'),
+                'icon_emoji': os.environ.get('SLACK_NOTIFY_ICON', ':barusu:'),
                 'link_names': 1,
                 'attachments': [{
                     'fields': fields
@@ -41,7 +41,7 @@ class SlackDatasource:
         return members['name']
 
     def measure_pair_variation(self, pair_list: CombinationList) -> None:
-        members =[pair.to_dict()['member'] for pair in pair_list.values]
+        members = [pair.to_dict()['member'] for pair in pair_list.values]
         if isinstance(members, list):
             print(members)
             name_list = [member['name'] for member in members]

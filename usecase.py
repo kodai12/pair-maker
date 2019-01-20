@@ -1,8 +1,7 @@
 from datetime import datetime
-from typing import List
 
 from datasource import CsvDatasource, SlackDatasource
-from model.combination import Combination, CombinationList, create_combinations
+from model.combination import CombinationList, create_combinations
 from model.date import NotifyDate
 
 
@@ -39,3 +38,4 @@ class NotifyToSlack:
         # slackに通知
         self.slack_datasource.post(pair_list=new_pairs)
         #  self.slack_datasource.measure_pair_variation(pair_list=new_pairs)
+
