@@ -111,7 +111,7 @@ def create_combinations(
 
 
 class CombinationList:
-    def __init__(self, values: List[Combination]):
+    def __init__(self, values: List[Combination]) -> None:
         self.values = values
 
     def update_combination_list(self) -> 'CombinationList':
