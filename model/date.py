@@ -9,9 +9,10 @@ class NotifyDate(Value):
         self.datetime = datetime
 
     def is_holiday(self) -> bool:
-        if self.datetime.weekday == 5 or 6:
+        print(self.datetime.weekday())
+        if self.datetime.weekday() == 5 or self.datetime.weekday() == 6:
             return True
-        if jpholiday.is_holiday(self.datetime):
+        if jpholiday.is_holiday(self.datetime.date()):
             return True
         return False
 
