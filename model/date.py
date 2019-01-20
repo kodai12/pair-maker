@@ -1,8 +1,10 @@
-import jpholiday
+from lambdalayer import jpholiday
 import datetime
 
+from model.value import Value
 
-class NotifyDate:
+
+class NotifyDate(Value):
     def __init__(self, datetime: datetime.datetime):
         self.datetime = datetime
 

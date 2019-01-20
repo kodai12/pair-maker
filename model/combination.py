@@ -1,10 +1,11 @@
 from abc import ABCMeta, abstractmethod
 from typing import List
-from more_itertools import chunked
+from lambdalayer.more_itertools import chunked
 from itertools import chain
 import random
 
 from model.member import Member
+from model.value import Value
 
 
 class Combination(metaclass=ABCMeta):
@@ -17,7 +18,7 @@ class Combination(metaclass=ABCMeta):
         pass
 
 
-class CombinationIndex:
+class CombinationIndex(Value):
     def __init__(self, value: int):
         self.value = value
 

@@ -1,17 +1,19 @@
 from typing import List
 
+from model.value import Value
 
-class MemberId:
+
+class MemberId(Value):
     def __init__(self, value: int):
         self.value = value
 
 
-class MemberIndex:
+class MemberIndex(Value):
     def __init__(self, value: int):
         self.value = value
 
 
-class MemberName:
+class MemberName(Value):
     def __init__(self, value: str):
         self.value = value
 
