@@ -40,27 +40,85 @@ class SlackDatasource:
             return ' : '.join(name_list)
         return members['name']
 
+    def measure_pair_variation(self, pair_list: CombinationList) -> None:
+        members =[pair.to_dict()['member'] for pair in pair_list.values]
+        if isinstance(members, list):
+            print(members)
+            name_list = [member['name'] for member in members]
+            print_name = ' : '.join(name_list)
+            if print_name == '' or print_name == '':
+                CsvDatasource.write_for_metrics(0)
+            elif print_name == '' or print_name == '':
+                CsvDatasource.write_for_metrics(1)
+            elif print_name == '' or print_name == '':
+                CsvDatasource.write_for_metrics(2)
+            elif print_name == '' or print_name == '':
+                CsvDatasource.write_for_metrics(3)
+            elif print_name == '' or print_name == '':
+                CsvDatasource.write_for_metrics(4)
+            elif print_name == '' or print_name == '':
+                CsvDatasource.write_for_metrics(5)
+            elif print_name == '' or print_name == '':
+                CsvDatasource.write_for_metrics(6)
+            elif print_name == '' or print_name == '':
+                CsvDatasource.write_for_metrics(7)
+            elif print_name == '' or print_name == '':
+                CsvDatasource.write_for_metrics(8)
+            elif print_name == '' or print_name == '':
+                CsvDatasource.write_for_metrics(9)
+
+
 
 class CsvDatasource:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, settings_file: str, index_history_file: str) -> None:
+        self.settings_file = settings_file
+        self.index_history_file = index_history_file
 
-    def read(self, file_name: str) -> List[dict]:
-        with open(file_name, 'r') as f:
+    def read(self) -> List[dict]:
+        with open(self.settings_file, 'r') as f:
             reader = csv.reader(f)
             next(reader)  # skip header
 
-            return [{
-                'id': row[0],
-                'index': row[1],
-                'name': row[2]
+            l = [{
+                'id':
+                row[0],
+                'index':
+                self.__find_index_by_id(int(row[0])),
+                'name':
+                row[1],
+                'skip_days':
+                list(
+                    map(lambda v: int(v) if v != '' else None,
+                        row[2].split(',')))
             } for row in reader]
+            return sorted(l, key=itemgetter('index'), reverse=False)
 
-    def write(self, file_name: str, pair_list: List[Combination]) -> None:
-        with open(file_name, 'w') as f:
+    def __find_index_by_id(self, id: int):
+        with open(self.index_history_file, 'r') as f:
+            reader = csv.reader(f)
+            next(reader)  # skip header
+
+            index_list = [int(row[0]) for row in reader]
+            return index_list.index(
+                id
+            ) if id in index_list else 100000  # NOTE: indexがセットされてない場合適当な値(100000)を入れとく
+
+    def write(self, member_id_list: List[MemberId]) -> None:
+        with open(self.index_history_file, 'w') as f:
             w = csv.writer(f, lineterminator='\n')
-            w.writerow(pair_list.values[0].to_dict()['member'][0].keys())
-            for pair in pair_list.values:
-                lists = pair.to_flat_list()
-                for l in lists:
-                    w.writerow(l)
+            w.writerow(['id'])
+            for member_id in member_id_list:
+                w.writerow(member_id.value)
+
+    @staticmethod
+    def write_for_metrics(id) -> None:
+        point_list = []
+        with open('metrics.csv', 'r') as f:
+            r = csv.reader(f)
+            point_list = [int(row[0]) for row in r]
+        with open('metrics.csv', 'w') as f:
+            w = csv.writer(f, lineterminator='\n')
+            point_list[id] += 1
+            for point in point_list:
+                w.writerow([point])
+
