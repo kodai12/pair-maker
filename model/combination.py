@@ -115,10 +115,11 @@ class CombinationList:
         self.values = values
 
     def update_combination_list(self) -> 'CombinationList':
+        """ ランダムな組み合わせのリストを返す """
         index_stack = []
         remaining_stack = []
         for combination in self.values:
-            # ペアの片方は元のペアに残したままでもう片方はremainingにappendしておく
+            # ペアの片方は元のペアに残したままでもう片方はremaining_stackにappendしておく
             if isinstance(combination, Pair):
                 (move_member, stay_member) = combination.divide_member()
                 index_stack.append([stay_member])
@@ -133,21 +134,29 @@ class CombinationList:
                     'member': combination.member
                     })
 
-        # remainingに残ったメンバーをいずれかのペアにinsertする
+        # remaining_stackに残ったメンバーをランダムな組み合わせにシャッフル
         remaining_index_list = [v['combination_index'] for v in remaining_stack]
         random_index_list = self.__get_random_index_list(remaining_index_list)
+        # 生成したランダムな組み合わせを前から順にappendする
         for index, random_index in enumerate(random_index_list):
+            if len(index_stack) != len(random_index_list):
+                index_stack.append([])
             index_stack[index].append(remaining_stack[random_index]['member'])
 
         index_list_dict = [i.to_dict() for i in chain.from_iterable(index_stack)]
-        print(index_list_dict)
         return create_combinations(index_list_dict)
 
     def __get_random_index_list(self, index_list: List[int]) -> List[int]:
+        """ 元の配列と各インデックスの値が異なる完全にランダムな配列を返す """
         random_index_list = []
+        list_length = len(index_list)
         while True:
-            random_index_list = random.sample(index_list, len(index_list))
-            if random_index_list[-1] != index_list[-1]:
+            random_index_list = random.sample(index_list, list_length)
+            n = 0
+            for i in range(list_length):
+                if random_index_list[i] != index_list[i]:
+                    n += 1
+            if n == list_length:
                 break
         return random_index_list
 
