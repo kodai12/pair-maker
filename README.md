@@ -4,7 +4,6 @@
 ペアプロの組み合わせをランダムに作成してslack通知してくれます
 
 ## 注意点
-- 6人以上に対応してません:pray:
 - 個人用なので汎用的では全くありません:pray:
 - サーバーレスっぽいファイル構成ですが結果的にローカルで動かす形になりました
 
@@ -41,6 +40,7 @@ id
 ```
 
 3. `.envrc.template`を参考に`.envrc`を作成
+  - PYTHONPATH: `プロジェクトまでのパス/pair_maker/lambdalayer`
   - SLACK_WEBHOOK_URL: [https://qiita.com/kakiuchis/items/1d9ade2ef83709209dc4](https://qiita.com/kakiuchis/items/1d9ade2ef83709209dc4)とか適当に参考にして取得しておく
   - SETTINGS_CSV_FILE: 上で作った`settings.csv`を設定
   - INDEX_HISTORY_CSV_FILE: 上で作った`history.csv`を設定
@@ -52,4 +52,5 @@ id
 
 ## 実行
 `python handler.py`
+
 cronとかで定期実行するようにすれば毎朝ペアプロの組み合わせを通知してくれます:muscle:
