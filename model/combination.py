@@ -117,7 +117,6 @@ class CombinationList:
     def update_combination_list(self) -> 'CombinationList':
         index_stack = []
         remaining_stack = []
-        (random_index, remain_index) = self.__get_random_index()
         for combination in self.values:
             # ペアの片方は元のペアに残したままでもう片方はremainingにappendしておく
             if isinstance(combination, Pair):
@@ -127,19 +126,30 @@ class CombinationList:
                     'combination_index': combination.index.value,
                     'member': move_member
                     })
-            # singleの場合はランダム(1番目か2番目)にリストにinsertしておく
+            # singleの場合はremaining_stackの最後にappendする
             if isinstance(combination, Single):
-                index_stack[random_index].append(combination.member)
+                remaining_stack.append({
+                    'combination_index': combination.index.value,
+                    'member': combination.member
+                    })
 
         # remainingに残ったメンバーをいずれかのペアにinsertする
-        for remaining in remaining_stack:
-            if remaining['combination_index'] == random_index:
-                index_stack[remain_index].append(remaining['member'])
-            else:
-                index_stack.append([remaining['member']])
+        remaining_index_list = [v['combination_index'] for v in remaining_stack]
+        random_index_list = self.__get_random_index_list(remaining_index_list)
+        for index, random_index in enumerate(random_index_list):
+            index_stack[index].append(remaining_stack[random_index]['member'])
 
         index_list_dict = [i.to_dict() for i in chain.from_iterable(index_stack)]
+        print(index_list_dict)
         return create_combinations(index_list_dict)
+
+    def __get_random_index_list(self, index_list: List[int]) -> List[int]:
+        random_index_list = []
+        while True:
+            random_index_list = random.sample(index_list, len(index_list))
+            if random_index_list[-1] != index_list[-1]:
+                break
+        return random_index_list
 
     def update_skip_list_member(self, weekday: int) -> 'CombinationList':
         index_stack = []
@@ -147,12 +157,6 @@ class CombinationList:
             index_stack.append(combination.skip_member_list(weekday))
         index_list_dict = [i for i in chain.from_iterable(index_stack)]
         return create_combinations(index_list_dict)
-
-    def __get_random_index(self) -> tuple:
-        if random.choice([True, False]):
-            return (0, 1)
-        else:
-            return (1, 0)
 
     def get_member_id_list(self) -> List[MemberId]:
         member_id_stack = []
