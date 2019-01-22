@@ -45,6 +45,13 @@ class Pair(Combination):
     def get_member_id_list(self) -> List[MemberId]:
         return [member.id for member in self.memberList]
 
+    def skip_not_in_office_member(self, skip_name_list: List[str]) -> List[Member]:
+        new_index_list = []
+        for member in self.memberList:
+            if member.name.value not in skip_name_list:
+                new_index_list.append(member.to_dict())
+        return new_index_list
+
     def skip_member_list(self, weekday: int) -> List[Member]:
         new_index_list = []
         for member in self.memberList:
@@ -66,6 +73,9 @@ class Single(Combination):
 
     def get_member_id(self) -> MemberId:
         return self.member.id
+
+    def skip_not_in_office_member(self, skip_name_list: List[str]) -> List[Member]:
+        return [self.member.to_dict()] if self.member.name.value not in skip_name_list else []
 
     def skip_member_list(self, weekday: int) -> List[Member]:
         return [self.member.to_dict()] if weekday not in self.member.skip_days.values else []
@@ -159,6 +169,13 @@ class CombinationList:
             if n == list_length:
                 break
         return random_index_list
+
+    def update_not_in_office_member(self, skip_name_list: List[str]) -> 'CombinationList':
+        index_stack = []
+        for combination in self.values:
+            index_stack.append(combination.skip_not_in_office_member(skip_name_list))
+        index_list_dict = [i for i in chain.from_iterable(index_stack)]
+        return create_combinations(index_list_dict)
 
     def update_skip_list_member(self, weekday: int) -> 'CombinationList':
         index_stack = []

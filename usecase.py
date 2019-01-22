@@ -21,6 +21,11 @@ class NotifyToSlack:
         pair_index_list: List[dict] = self.csv_datasource.read()
         pairs: CombinationList = create_combinations(pair_index_list)
 
+        #  import pprint
+        #  pprint.pprint(pairs.to_dict())
+        #  a = pairs.update_not_in_office_member(['迫地', '田中'])
+        #  pprint.pprint(a.to_dict())
+
         # (出張などで)スキップしたいメンバーを除外
         pair_skipped_index_list = pairs.update_skip_list_member(
             notify_date.get_weekday())
