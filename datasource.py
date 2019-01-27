@@ -14,22 +14,39 @@ class SlackDatasource:
         self.end_point = end_point
 
     def post(self, pair_list: CombinationList) -> None:
-        fields = [
+        _pairs = [
             {
                 'title': 'PAIR{}'.format(pair.to_dict()['index'] +
                                          1),  # pair番号は1から始めるのでインクリメント
                 'value': '{}'.format(self.__format_pair(pair))
             } for pair in pair_list.values
         ]
+        _order_correction_pair = [{
+            'value':
+            '{}'.format(self.__format_pair(pair_list.values[0]))
+        }]
+        _morning_chairman = [{
+            'value':
+            '{}'.format(pair_list.values[0].to_dict()['member'][0]['name'])
+        }]
         requests.post(
             self.end_point,
             data=json.dumps({
-                'text': os.environ.get('SLACK_NOTIFY_TITLE', '今日のペアプロの相手は...?'),
-                'username': os.environ.get('SLACK_NOTIFY_USERNAME', 'ペア通知bot'),
-                'icon_emoji': os.environ.get('SLACK_NOTIFY_ICON', ':barusu:'),
-                'link_names': 1,
+                'username':
+                os.environ.get('SLACK_NOTIFY_USERNAME', 'ペア通知bot'),
+                'icon_emoji':
+                os.environ.get('SLACK_NOTIFY_ICON', ':barusu:'),
+                'link_names':
+                1,
                 'attachments': [{
-                    'fields': fields
+                    'title': 'ペアプロの組み合わせ',
+                    'fields': _pairs,
+                }, {
+                    'title': '注文補正の担当ペア',
+                    'fields': _order_correction_pair,
+                }, {
+                    'title': '朝会の司会',
+                    'fields': _morning_chairman,
                 }]
             }))
 
